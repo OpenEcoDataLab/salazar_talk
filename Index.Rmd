@@ -1,0 +1,112 @@
+---
+title: "  ."
+author: " "
+date: " "
+output: 
+  revealjs::revealjs_presentation:
+    self_contained: false
+    center: true
+    incremental: true
+    theme: night
+    transition: slide
+    css: style.css
+    reveal_plugins: 'chalkboard'
+    template: background.html
+    reveal_options:
+      slideNumber: true
+      previewLinks: true
+      margin: 0.00
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+
+```{r setup, include = F, cache = F}
+library(tidyverse)
+library(sf)
+library(mapview)
+library(rayshader)
+library(elevatr)
+library(raster)
+library(leaflet)
+knitr::opts_chunk$set(echo = F, fig.width = 10, fig.height = 6, warning = F, message = F, comment = F,
+                      eval = T, cache = F)
+
+mapviewOptions(basemaps = c("CartoDB.DarkMatter","OpenTopoMap",'Esri.WorldImagery'))
+
+
+sites <- st_read('data/sondes.kml') %>%
+  filter(Name != 'Manners Sonde (FC-existing)') %>%
+  mutate(Name = gsub('; online)',')',Name)) %>%
+  mutate(Name = factor(Name,levels=c('Rist Canyon Rd (CSU)',
+                                     'Legacy (CSU)',
+                                     'Lincoln (In-situ)',
+                                     'Timberline (FC)',
+                                     'Prospect (FC)',
+                                     'ELC (CSU)',
+                                     'Archery Range (FC)',
+                                     'Fossil Creek (FC)'))) %>%
+  st_transform(2163)
+
+poudre <- st_read('data/globalwatershed.shp') %>%
+  mutate(Name='Poudre') %>% 
+  st_transform(2163) %>%
+  st_simplify(.,dTolerance = 500)
+
+lines <- st_read('data/poudre_main.shp') %>%
+  st_zm(.,drop=T) %>%
+  st_transform(2163) %>%
+  st_simplify(., dTolerance = 100)
+
+lines_sub <- lines[sites %>% st_buffer(3000),]
+```
+
+
+# 
+
+
+
+```{r, echo = F}
+#devtools::install_github('r-spatial/mapview', force = T)
+#devtools::install_github('r-spatial/leafpop')
+
+mapview(poudre, col.regions = 'gray', legend = F) + 
+  mapview(lines, color  = 'blue',legend = F)
+
+```
+
+
+
+##
+
+
+<iframe title="COLORADOAN-Embed Player" width="540" height="350" frameborder="0" scrolling="no" allowfullscreen="true" marginheight="0" marginwidth="0" src="https://uw-media.coloradoan.com/embed/video/1385455002?placement=snow-embed"></iframe>
+
+
+##
+
+```{r}
+
+
+
+
+mapview(lines_sub, color  = 'blue',legend = F) + 
+  mapview(sites,zcol='Name',col.regions=c('#1b7837','#7fbf7b','red',
+                                        '#d9f0d3','#e7d4e8',
+                                        '#af8dc3','#762a83','red'
+                                        ))
+
+
+```
+
+
+##
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/xgL-qvd6xTI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+#
+
+![](https://denver.cbslocal.com/wp-content/uploads/sites/15909806/2020/09/CAMERON-PEAK-FIRE-10-PKG.transfer_frame_2255.jpeg)
